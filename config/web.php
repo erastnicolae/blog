@@ -49,6 +49,7 @@ $config = [
         */
     ],
     'params' => $params,
+    'defaultRoute' => 'post/index'
 ];
 
 if (YII_ENV_DEV) {

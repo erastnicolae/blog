@@ -39,3 +39,4 @@ tests/_support/_generated
 codeception.yml
 requirements.php
 yii*
+*draft.php
