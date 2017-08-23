@@ -3,17 +3,16 @@
 namespace app\controllers;
 
 use Yii;
-use app\models\Post;
+use app\models\Comment;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use yii\filters\AccessControl;
 
 /**
- * PostController implements the CRUD actions for Post model.
+ * CommentController implements the CRUD actions for Comment model.
  */
-class PostController extends Controller
+class CommentController extends Controller
 {
     /**
      * @inheritdoc
@@ -27,44 +26,17 @@ class PostController extends Controller
                     'delete' => ['POST'],
                 ],
             ],
-            'access' => [
-                'class' => AccessControl::className(),
-                'only' => ['create','update','delete'],
-                'rules' => [
-                    [
-                        'allow' => true,
-                        'actions' => ['create'],
-                        'roles' => ['@']
-                    ],
-                    [
-                        'allow' => true,
-                        'actions' => ['update','delete'],
-                        'matchCallback' => function($rule,$action) {
-                            $post_id = Yii::$app->request->get('id');
-                            $author_id = $this->findModel($post_id)->created_by;
-                            if ($author_id != Yii::$app->user->id)
-                                return false;
-                            else
-                                return true;
-                        }
-                    ],
-                ],
-
-            ],
         ];
     }
 
     /**
-     * Lists all Post models.
+     * Lists all Comment models.
      * @return mixed
      */
     public function actionIndex()
     {
         $dataProvider = new ActiveDataProvider([
-            'query' => Post::find(),
-            'pagination' => [
-                'pageSize' => 3
-            ]
+            'query' => Comment::find(),
         ]);
 
         return $this->render('index', [
@@ -73,7 +45,7 @@ class PostController extends Controller
     }
 
     /**
-     * Displays a single Post model.
+     * Displays a single Comment model.
      * @param integer $id
      * @return mixed
      */
@@ -85,17 +57,15 @@ class PostController extends Controller
     }
 
     /**
-     * Creates a new Post model.
+     * Creates a new Comment model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new Post();
+        $model = new Comment();
 
-        if ($model->load(Yii::$app->request->post())) {
-            $model->Html::decode($model);
-            $model->save();
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('create', [
@@ -105,7 +75,7 @@ class PostController extends Controller
     }
 
     /**
-     * Updates an existing Post model.
+     * Updates an existing Comment model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -124,7 +94,7 @@ class PostController extends Controller
     }
 
     /**
-     * Deletes an existing Post model.
+     * Deletes an existing Comment model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -137,15 +107,15 @@ class PostController extends Controller
     }
 
     /**
-     * Finds the Post model based on its primary key value.
+     * Finds the Comment model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Post the loaded model
+     * @return Comment the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Post::findOne($id)) !== null) {
+        if (($model = Comment::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
