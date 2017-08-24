@@ -4,11 +4,14 @@ namespace app\controllers;
 
 use Yii;
 use app\models\Post;
+use app\models\Comment;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
+use yii\helpers\Json;
+use yii\helpers\VarDumper;
 
 /**
  * PostController implements the CRUD actions for Post model.
@@ -29,7 +32,7 @@ class PostController extends Controller
             ],
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['create','update','delete'],
+                'only' => ['create','update','delete','delete-comment'],
                 'rules' => [
                     [
                         'allow' => true,
@@ -38,14 +41,24 @@ class PostController extends Controller
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['update','delete'],
-                        'matchCallback' => function($rule,$action) {
-                            $post_id = Yii::$app->request->get('id');
-                            $author_id = $this->findModel($post_id)->created_by;
-                            if ($author_id != Yii::$app->user->id)
-                                return false;
-                            else
+                        'actions' => ['update','delete','delete-comment'],
+                        'matchCallback' => function ($rule,$action) {
+                            
+                            $item_id = Yii::$app->request->get('id');
+                            $user_id = Yii::$app->user->id;
+                            $author_comment = 0;
+
+                            if($action == 'delete-comment') {
+                                $author_comment = $this->findComment($item_id)->created_by;
+                                $post_id = $this->findComment($item_id)->post_id;
+                                $author_post = $this->findModel(post_id)->created_by;
+                            } else
+                                $author_post = $this->findModel($item_id)->created_by;
+
+                            if(in_array($user_id,array(1,$author_post,$author_comment)))
                                 return true;
+                            else
+                                return false;
                         }
                     ],
                 ],
@@ -54,7 +67,7 @@ class PostController extends Controller
         ];
     }
 
-    /**
+     /**
      * Lists all Post models.
      * @return mixed
      */
@@ -93,9 +106,7 @@ class PostController extends Controller
     {
         $model = new Post();
 
-        if ($model->load(Yii::$app->request->post())) {
-            $model->Html::decode($model);
-            $model->save();
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('create', [
@@ -146,6 +157,30 @@ class PostController extends Controller
     protected function findModel($id)
     {
         if (($model = Post::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+    }
+
+    public function actionCreateComment()
+    {
+        $model = new Comment();
+        // echo 1;
+        if($model->load(Yii::$app->request->post()) && $model->save())
+            echo Json::encode($model);
+    }
+
+    public function actionDeletecom($id)
+    {
+        $post_id = $this->findComment($id)->post_id;
+        $this->findComment($id)->delete();
+        return $this->render('view',['model' => $this->findModel($post_id)]);
+    }
+
+    protected function findComment($id)
+    {
+        if (($model = Comment::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

@@ -8,6 +8,7 @@ use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\helpers\Json;
 
 /**
  * CommentController implements the CRUD actions for Comment model.
@@ -65,14 +66,21 @@ class CommentController extends Controller
     {
         $model = new Comment();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
+        $model->load(Yii::$app->request->post());
+        
+        if(Yii::$app->request->isAjax) {
+            $model->save();
+            echo Json::encode($model);
         }
-    }
+        else
+            if ($model->save()) 
+                return $this->redirect(['view', 'id' => $model->id]);
+            else {
+                return $this->render('create', [
+                    'model' => $model,
+                ]);
+            }
+        }
 
     /**
      * Updates an existing Comment model.

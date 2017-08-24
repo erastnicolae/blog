@@ -22,9 +22,6 @@ use yii\behaviors\BlameableBehavior;
  */
 class Comment extends ActiveRecord
 {
-    
-    public $verifyCode;
-
     /**
      * @inheritdoc
      */
@@ -61,7 +58,6 @@ class Comment extends ActiveRecord
             [['content'], 'string'],
             [['post_id'], 'integer'],
             [['post_id'], 'exist', 'skipOnError' => true, 'targetClass' => Post::className(), 'targetAttribute' => ['post_id' => 'id']],
-            // ['verifyCode', 'captcha'],
         ];
     }
 
