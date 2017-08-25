@@ -40,3 +40,5 @@ codeception.yml
 requirements.php
 yii*
 *draft.php
+*sublime-project
+*sublime-workspace

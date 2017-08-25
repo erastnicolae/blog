@@ -57,7 +57,9 @@ $this->params['breadcrumbs'][] = ['label' => 'Posts', 'url' => ['index']];
                 echo ' on ' ;
                 echo strftime('%d.%m.%Y %H:%m',$model->created_at);
                 echo '<p>'.$comment->content;
-                if (Yii::$app->user->id == $model->created_by or Yii::$app->user->id == $comment->created_by or Yii::$app->user->id == 1)
+                // echo 'user: '.Yii::$app->user->id.', post_user: '. $model->created_by.', comment_user'.$comment->created_by;
+                echo ' ... ';
+                if (Yii::$app->user->id and (Yii::$app->user->id == $model->created_by or Yii::$app->user->id == $comment->created_by or Yii::$app->user->id == 1))
                     echo Html::a('delete',['deletecom','id' => $comment->id],[
                         'data' => [
                             'confirm' => 'Are you sure you want to delete this comment?',
